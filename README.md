@@ -75,5 +75,5 @@ Licensed under the[MIT License]((https://opensource.org/licenses/MIT)) license.
 
 * The URL of the deployed application.
 
-* The URL of the GitHub repository.
+* The URL of the GitHub repository: https://github.com/Saraz-Git/note-taker
 
