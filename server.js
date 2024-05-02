@@ -1,6 +1,6 @@
 const express = require('express');
 const path = require('path');
-const fs = require('fs');
+const fs = require('fs/promises');
 const uuid = require('uuid');
 const { clog } = require('./middleware/clog');
 const PORT = process.env.PORT || 3029;
@@ -35,7 +35,7 @@ app.get('/api/notes', (req, res) => {
 });
 
 // POST Route for submitting new note
-app.post('/api/notes', (req, res) => {
+app.post('/api/notes', async (req, res) => {
     console.log(req.body);
     const { title, text } = req.body;
     if (title && text) {
@@ -48,10 +48,10 @@ app.post('/api/notes', (req, res) => {
             status: 'success',
             body: newNote,
         }
+
         const notes = require('./db/db.json');
         notes.push(newNote);
-        fs.writeFile(`./db/db.json`, JSON.stringify(notes), (err) =>
-            err ? console.error(err) : console.log(`Note has been written to JSON file`));
+        await fs.writeFile(`./db/db.json`, JSON.stringify(notes));
         res.status(201).json(response);
     } else {
         res.status(500).json('Error adding new note');
@@ -59,14 +59,14 @@ app.post('/api/notes', (req, res) => {
 });
 
 // DELETE Route for a specific note
-app.delete('/api/notes/:id', (req, res) => {
+app.delete('/api/notes/:id', async (req, res) => {
     const noteId = req.params.id;//string
-    const notes = require('./db/db.json');
+    const dataString = await fs.readFile('./db/db.json', { encoding: 'utf8' });
+    let notes = JSON.parse(dataString);
     const found = notes.some(note => note.id === noteId);
     if (found) {
         const notesLeft = notes.filter(note => note.id !== noteId);
-        fs.writeFile(`./db/db.json`, JSON.stringify(notesLeft), (err) =>
-            err ? console.error(err) : console.log(`Note has been deleted`));
+        await fs.writeFile(`./db/db.json`, JSON.stringify(notesLeft));
         res.status(200).json(notesLeft);
     } else { res.status(500).json('Error deleting note'); }
 });
