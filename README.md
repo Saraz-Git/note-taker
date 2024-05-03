@@ -49,7 +49,7 @@ Licensed under the[MIT License]((https://opensource.org/licenses/MIT)) license.
 
 ## Review
 
-* The URL of the deployed application: https://note-taker-woso.onrender.com/notes
+* The URL of the deployed application: https://note-taker-woso.onrender.com
 
 * The URL of the GitHub repository: https://github.com/Saraz-Git/note-taker
 

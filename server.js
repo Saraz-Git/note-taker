@@ -26,14 +26,12 @@ app.get('/notes', (req, res) =>
 // GET Route for retrieving all the notes
 app.get('/api/notes', async (req, res) => {
     const dataString = await fs.readFile('./db/db.json', { encoding: 'utf8' });
-
-    let notesData = JSON.parse(dataString);
+    const notesData = JSON.parse(dataString);
     res.json(notesData);
 });
 
 // POST Route for submitting new note
 app.post('/api/notes', async (req, res) => {
-    console.log(req.body);
     const { title, text } = req.body;
     if (title && text) {
         const newNote = {
@@ -46,7 +44,8 @@ app.post('/api/notes', async (req, res) => {
             body: newNote,
         }
 
-        const notes = require('./db/db.json');
+        const dataString = await fs.readFile('./db/db.json', { encoding: 'utf8' });
+        let notes = JSON.parse(dataString);
         notes.push(newNote);
         await fs.writeFile(`./db/db.json`, JSON.stringify(notes));
         res.status(201).json(response);
@@ -57,17 +56,13 @@ app.post('/api/notes', async (req, res) => {
 
 // DELETE Route for a specific note
 app.delete('/api/notes/:id', async (req, res) => {
-    const noteId = req.params.id;//string
-    console.log(noteId);
+    const noteId = req.params.id;
     const dataString = await fs.readFile('./db/db.json', { encoding: 'utf8' });
-    console.log(dataString);
-    let notes = JSON.parse(dataString);
+    const notes = JSON.parse(dataString);
     const found = notes.some(note => note.id === noteId);
-    console.log(found);
     if (found) {
         const notesLeft = notes.filter(note => note.id !== noteId);
         await fs.writeFile(`./db/db.json`, JSON.stringify(notesLeft));
-        console.log('file created');
         res.status(200).json(notesLeft);
     } else { res.status(500).json('Error deleting note'); }
 });
