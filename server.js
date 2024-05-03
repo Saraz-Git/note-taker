@@ -23,14 +23,11 @@ app.get('/notes', (req, res) =>
     res.sendFile(path.join(__dirname, '/public/notes.html'))
 );
 
-//Wildcard route to direct users to the home page
-// app.get('*', (req, res) =>
-//     res.sendFile(path.join(__dirname, '/public/index.html'))
-// );
-
 // GET Route for retrieving all the notes
-app.get('/api/notes', (req, res) => {
-    const notesData = require('./db/db.json');
+app.get('/api/notes', async (req, res) => {
+    const dataString = await fs.readFile('./db/db.json', { encoding: 'utf8' });
+
+    let notesData = JSON.parse(dataString);
     res.json(notesData);
 });
 
@@ -61,14 +58,23 @@ app.post('/api/notes', async (req, res) => {
 // DELETE Route for a specific note
 app.delete('/api/notes/:id', async (req, res) => {
     const noteId = req.params.id;//string
+    console.log(noteId);
     const dataString = await fs.readFile('./db/db.json', { encoding: 'utf8' });
+    console.log(dataString);
     let notes = JSON.parse(dataString);
     const found = notes.some(note => note.id === noteId);
+    console.log(found);
     if (found) {
         const notesLeft = notes.filter(note => note.id !== noteId);
         await fs.writeFile(`./db/db.json`, JSON.stringify(notesLeft));
+        console.log('file created');
         res.status(200).json(notesLeft);
     } else { res.status(500).json('Error deleting note'); }
 });
+
+//Wildcard route to direct users to the home page
+app.get('*', (req, res) =>
+    res.sendFile(path.join(__dirname, '/public/index.html'))
+);
 
 app.listen(PORT, () => console.log(`App listening on port ${PORT}`));
